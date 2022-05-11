@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-   "parcel-build": "parcel build index.html && cp _redirects ./dist/" ,
+    "parcel-build": "parcel build index.html && cp _redirects ./dist/",
     "serve": "parcel index.html"
   },
   "keywords": [],
@@ -17,6 +17,7 @@
     "prettier": "1.19.1"
   },
   "dependencies": {
+    "html-literal": "^1.1.0",
     "parcel": "^2.5.0",
     "yargs-parser": ">=13.1.2"
   }
