@@ -1,4 +1,4 @@
 export default {
   header: "My Pizza Page",
-  view: "Home"
+  view: "Pizza"
 };
