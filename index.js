@@ -14,63 +14,49 @@ function render(state = Store.Home) {
     ${Footer()}
   `;
   router.updatePageLinks();
-  AfterRender();
+  afterRender(state);
 }
 
-function AfterRender() {
+function afterRender(state) {
   // add menu toggle to bars icon in nav bar
   document
     .querySelector(".fa-bars")
     .addEventListener("click", () =>
       document.querySelector("nav > ul").classList.toggle("hidden--mobile")
     );
-}
 
-router.hooks({
-  before: (done, params) => {
-    let view = "Home";
-    if (params && params.data && params.data.view) {
-      view = capitalize(params.data.view);
-    }
+  if (state.view === "Order") {
+    document.querySelector("form").addEventListener("submit", event => {
+      event.preventDefault();
+      const inputList = event.target.elements;
 
-    if (view === "Home") {
+      const toppings = [];
+      for (let input of inputList.toppings) {
+        if (input.checked) {
+          toppings.push(input.value);
+        }
+      }
+      const requestData = {
+        crust: inputList.crust.value,
+        cheese: inputList.cheese.value,
+        sauce: inputList.sauce.value,
+        toppings: toppings,
+        customer: "John Morgan II"
+      };
+
       axios
-        .get(
-          `https://api.openweathermap.org/data/2.5/weather?appid=${process.env.OPEN_WEATHER_MAP_API_KEY}&q=st.%20louis`
-        )
+        .post(`${process.env.PIZZA_PLACE_API_URL}`, requestData)
         .then(response => {
-          const kelvinToFahrenheit = kelvinTemp =>
-            Math.round((kelvinTemp - 273.15) * (9 / 5) + 32);
-
-          Store.Home.weather = {};
-          Store.Home.weather.city = response.data.name;
-          Store.Home.weather.temp = kelvinToFahrenheit(response.data.main.temp);
-          Store.Home.weather.feelsLike = kelvinToFahrenheit(
-            response.data.main.feels_like
-          );
-          Store.Home.weather.description = response.data.weather[0].main;
-          done();
-        })
-        .catch(err => {
-          console.log(err);
-          done();
-        });
-    } else if (view === "Pizza") {
-      axios
-        .get(`${process.env.PIZZA_PLACE_API_URL}`)
-        .then(response => {
-          Store.Pizza.pizzas = response.data;
-          done();
+          console.log(response.data);
+          Store.Pizza.pizzas.push(response.data);
+          router.navigate("/Pizza");
         })
         .catch(error => {
           console.log("It puked", error);
-          done();
         });
-    } else {
-      done();
-    }
+    });
   }
-});
+}
 
 router
   .on({
